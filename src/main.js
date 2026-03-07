@@ -87,7 +87,21 @@ gui
 directionalLight.castShadow = true;
 directionalLight.shadow.camera.far = 15;
 directionalLight.shadow.mapSize.set(512, 512);
+directionalLight.shadow.normalBias = -0.027;
+directionalLight.shadow.bias = -0.004;
 gui.add(directionalLight, "castShadow").name("Cast Shadows");
+gui
+  .add(directionalLight.shadow, "normalBias")
+  .min(-0.05)
+  .max(0.05)
+  .step(0.0001)
+  .name("Shadow Normal Bias");
+gui
+  .add(directionalLight.shadow, "bias")
+  .min(-0.05)
+  .max(0.05)
+  .step(0.0001)
+  .name("Shadow Bias");
 
 // helper
 const directionalLightHelper = new THREE.CameraHelper(
@@ -107,6 +121,15 @@ directionalLight.target.updateWorldMatrix();
 // Helmet
 gltfLoader.load("/models/FlightHelmet/glTF/FlightHelmet.gltf", (gltf) => {
   gltf.scene.scale.set(10, 10, 10);
+  gltf.scene.position.set(-2, 0, 0);
+  scene.add(gltf.scene);
+
+  updateAllMaterials();
+});
+
+gltfLoader.load("/models/hamburger.glb", (gltf) => {
+  gltf.scene.scale.set(0.4, 0.4, 0.4);
+  gltf.scene.position.set(2, 1, 0);
   scene.add(gltf.scene);
 
   updateAllMaterials();
@@ -128,7 +151,7 @@ const floorAORoughnessMetalTexture = textureLoader.load(
 floorColorTexture.colorSpace = THREE.SRGBColorSpace;
 
 const floor = new THREE.Mesh(
-  new THREE.PlaneGeometry(8, 8),
+  new THREE.PlaneGeometry(16, 8),
   new THREE.MeshStandardMaterial({
     map: floorColorTexture,
     normalMap: floorNormalTexture,
@@ -157,7 +180,7 @@ const wallAORoughnessMetalTexture = textureLoader.load(
 wallColorTexture.colorSpace = THREE.SRGBColorSpace;
 
 const wall = new THREE.Mesh(
-  new THREE.PlaneGeometry(8, 8),
+  new THREE.PlaneGeometry(16, 8),
   new THREE.MeshStandardMaterial({
     map: wallColorTexture,
     normalMap: wallNormalTexture,
