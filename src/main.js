@@ -29,6 +29,8 @@ const updateAllMaterials = () => {
   scene.traverse((child) => {
     if (child.isMesh) {
       // Activate shadow here
+      child.castShadow = true;
+      child.receiveShadow = true;
     }
   });
 };
@@ -47,6 +49,56 @@ rgbeLoader.load("/environmentMaps/0/2k.hdr", (environmentMap) => {
   scene.background = environmentMap;
   scene.environment = environmentMap;
 });
+
+/**
+ * Directional light
+ */
+const directionalLight = new THREE.DirectionalLight("#ffffff", 6);
+directionalLight.position.set(-4, 6.5, 2.5);
+scene.add(directionalLight);
+
+gui
+  .add(directionalLight, "intensity")
+  .min(0)
+  .max(10)
+  .step(0.001)
+  .name("Light Intensity");
+gui
+  .add(directionalLight.position, "x")
+  .min(-10)
+  .max(10)
+  .step(0.001)
+  .name("Light Position X");
+gui
+  .add(directionalLight.position, "y")
+  .min(-10)
+  .max(10)
+  .step(0.001)
+  .name("Light Position Y");
+gui
+  .add(directionalLight.position, "z")
+  .min(-10)
+  .max(10)
+  .step(0.001)
+  .name("Light Position Z");
+
+// shadows
+directionalLight.castShadow = true;
+directionalLight.shadow.camera.far = 15;
+directionalLight.shadow.mapSize.set(512, 512);
+gui.add(directionalLight, "castShadow").name("Cast Shadows");
+
+// helper
+const directionalLightHelper = new THREE.CameraHelper(
+  directionalLight.shadow.camera,
+);
+directionalLightHelper.visible = false;
+scene.add(directionalLightHelper);
+gui.add(directionalLightHelper, "visible").name("Show Shadow Helper");
+
+// target
+directionalLight.target.position.set(0, 4, 0);
+directionalLight.target.updateWorldMatrix();
 
 /**
  * Models
@@ -122,6 +174,11 @@ gui.add(renderer, "toneMapping").options({
 });
 
 gui.add(renderer, "toneMappingExposure").min(0).max(10).step(0.001);
+
+// Shadows
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
 /**
  * Animate
  */
